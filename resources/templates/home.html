@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <div class="span12">
+    <ul class="content">
+      {% for event in events %}
+      <li>
+        <h2>{{event.organizer}}</h2>
+        <p>{{event.description}}</p>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="row">
+  <div class="span12">
+    <form method="POST" action="/event">
+      {% csrf-field %}
+      <p>
+        Organizer:
+        <input  class="form-control"
+                type="text"
+                name="organizer"
+                value="" />
+      </p>
+      {% if errors.organizer %}
+        <div class="alert alert-danger">{{errors.organizer|join}}</div>
+      {% endif %}
+      <p>
+        Description:
+        <input  class="form-control"
+                type="text"
+                name="description"
+                value="" />
+      </p>
+      {% if errors.description %}
+        <div class="alert alert-danger">{{errors.description|join}}</div>
+      {% endif %}
+      <input type="submit" class="btn btn-primary" value="Create Event" />
+    </form>
+  </div>
+</div>
+{% endblock %}
