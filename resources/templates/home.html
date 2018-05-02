@@ -1,43 +1,46 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="row">
-  <div class="span12">
-    <ul class="content">
-      {% for event in events %}
-      <li>
-        <h2>{{event.organizer}}</h2>
-        <p>{{event.description}}</p>
-      </li>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
-<div class="row">
-  <div class="span12">
-    <form method="POST" action="/event">
-      {% csrf-field %}
-      <p>
-        Organizer:
-        <input  class="form-control"
-                type="text"
-                name="organizer"
-                value="" />
-      </p>
-      {% if errors.organizer %}
-        <div class="alert alert-danger">{{errors.organizer|join}}</div>
-      {% endif %}
-      <p>
-        Description:
-        <input  class="form-control"
-                type="text"
-                name="description"
-                value="" />
-      </p>
-      {% if errors.description %}
-        <div class="alert alert-danger">{{errors.description|join}}</div>
-      {% endif %}
-      <input type="submit" class="btn btn-primary" value="Create Event" />
-    </form>
-  </div>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Welcome to evently</title>
+  </head>
+  <body>
+    <div id="navbar"></div>
+    <div id="app">
+      <div class="container-fluid">
+        <div class="card-deck">
+          <div class="card-block">
+            <h4>Welcome to evently</h4>
+            <p>If you're seeing this message, that means you haven't yet compiled your ClojureScript!</p>
+            <p>Please run <code>lein figwheel</code> to start the ClojureScript compiler and reload the page.</p>
+            <h4>For better ClojureScript development experience in Chrome follow these steps:</h4>
+            <ul>
+              <li>Open DevTools
+              <li>Go to Settings ("three dots" icon in the upper right corner of DevTools > Menu > Settings F1 > General > Console)
+              <li>Check-in "Enable custom formatters"
+              <li>Close DevTools
+              <li>Open DevTools
+            </ul>
+            <p>See <a href="http://www.luminusweb.net/docs/clojurescript.md">ClojureScript</a> documentation for further details.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- scripts and styles -->
+    {% style "/assets/bootstrap/css/bootstrap.min.css" %}
+    {% style "/assets/font-awesome/web-fonts-with-css/css/fontawesome-all.min.css" %}
+    {% style "/css/screen.css" %}
+
+    {% script "/assets/jquery/jquery.min.js" %}
+    {% script "/assets/font-awesome/svg-with-js/js/fontawesome.min.js" %}
+    {% script "/assets/tether/dist/js/tether.min.js" %}
+    {% script "/assets/bootstrap/js/bootstrap.min.js" %}
+
+    <script type="text/javascript">
+        var csrfToken = "{{csrf-token}}";
+    </script>
+    {% script "/js/app.js" %}
+  </body>
+</html>
