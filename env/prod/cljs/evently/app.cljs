@@ -5,3 +5,5 @@
 (set! *print-fn* (fn [& _]))
 
 (core/init!)
+
+(core/mount-components)

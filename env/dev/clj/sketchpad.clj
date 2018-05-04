@@ -1,8 +1,9 @@
-
 (use 'evently.db.core)
 
 (get-all-events)
 
-(get-event {:id "2"})
+(get-event {:id 23})
 
-(create-event! {:organizer "Humma" :description "Mumma"})
+(last (last (create-event! {:organizer "Humma" :description "Mumma"})))
+
+((keyword ":scope_identity()") create-event! {:organizer "Humma" :description "Mumma"})

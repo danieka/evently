@@ -1,4 +1,4 @@
--- :name create-event! :! :n
+-- :name create-event! :insert :raw
 -- :doc creates a new events record
 INSERT INTO events
 (organizer, description)
@@ -14,7 +14,7 @@ WHERE id = :id
 -- :doc retrieves a events record given the id
 SELECT * FROM events
 
--- :name get-event :? :*
+-- :name get-event :? :1
 SELECT * FROM events
 WHERE id = :id
 

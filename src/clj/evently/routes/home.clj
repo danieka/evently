@@ -1,24 +1,24 @@
 (ns evently.routes.home
   (:require [evently.layout :as layout]
             [evently.db.core :as db]
-            [compojure.core :refer [defroutes GET]]
+            [compojure.core :refer [defroutes GET POST]]
+            [compojure.route :as route]
+            [clojure.java.io :as io]
+            [evently.validation :as v]
             [ring.util.http-response :as response]
-            [clojure.java.io :as io]))
+            [ring.util.response :refer [response status]]))
 
 (defn home-page []
   (layout/render "home.html"))
+
 (defn save-event! [{:keys [params]}]
-  (if-let [errors (validate-event params)]
-    (-> (response/found "/")
-        (assoc :flash (assoc params :errors errors)))
+  (if-let [errors (v/validate-event params)]
+    (-> {:errors errors} response (status 400))
     (do
-      (db/create-event! params)
-      (response/found "/"))))
+      (response {:status :ok :response (db/get-event {:id (last (last (db/create-event! params)))})}))))
 
 (defroutes home-routes
-  (GET "/" []
-       (home-page))
-  (GET "/docs" []
-       (-> (response/ok (-> "docs/docs.md" io/resource slurp))
-           (response/header "Content-Type" "text/plain; charset=utf-8"))))
+  (GET "/event/:id" [id] (response/ok (let [d (db/get-event {:id id})] (println d) d)))
+  (POST "/event" req (save-event! req))
+  (GET "*" [] (home-page)))
 

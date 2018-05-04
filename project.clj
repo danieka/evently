@@ -29,7 +29,11 @@
                  [ring/ring-defaults "0.3.1"]
                  [selmer "1.11.7"]
                  [amalloy/ring-gzip-middleware "0.1.3"]
-                 [lein-cljsbuild "1.1.3"]]
+                 [lein-cljsbuild "1.1.3"]
+                 [reagent "0.5.1"]
+                 [cljs-ajax "0.5.2"]
+                 [buddy/buddy-hashers "1.3.0"]
+                 [secretary "1.2.0"]]
 
   :min-lein-version "2.0.0"
   
@@ -51,26 +55,26 @@
   
 
   :profiles
-  {:uberjar {:omit-source true
-             :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
-             :cljsbuild
-             {:builds
-              {:min
-               {:source-paths ["src/cljc" "src/cljs" "env/prod/cljs"]
-                :compiler
-                {:output-dir "target/cljsbuild/public/js"
-                 :output-to "target/cljsbuild/public/js/app.js"
-                 :source-map "target/cljsbuild/public/js/app.js.map"
-                 :optimizations :advanced
-                 :pretty-print false
-                 :closure-warnings
-                 {:externs-validation :off :non-standard-jsdoc :off}}}}}
-             
-             
-             :aot :all
-             :uberjar-name "evently.jar"
-             :source-paths ["env/prod/clj"]
-             :resource-paths ["env/prod/resources"]}
+    {:uberjar {:omit-source true
+                :prep-tasks ["compile" ["cljsbuild" "once" "min"]]
+                :cljsbuild
+                {:builds
+                {:min
+                {:source-paths ["src/cljc" "src/cljs" "env/prod/cljs"]
+                    :compiler
+                    {:output-dir "target/cljsbuild/public/js"
+                    :output-to "target/cljsbuild/public/js/app.js"
+                    :source-map "target/cljsbuild/public/js/app.js.map"
+                    :optimizations :advanced
+                    :pretty-print false
+                    :closure-warnings
+                    {:externs-validation :off :non-standard-jsdoc :off}}}}}
+                
+                
+                :aot :all
+                :uberjar-name "evently.jar"
+                :source-paths ["env/prod/clj"]
+                :resource-paths ["env/prod/resources"]}
 
    :dev           [:project/dev :profiles/dev]
    :test          [:project/dev :project/test :profiles/test]
@@ -100,6 +104,8 @@
                       :output-to "target/cljsbuild/public/js/app.js"
                       :output-dir "target/cljsbuild/public/js/out"
                       :source-map true
+                      :foreign-libs [{:file "src/cljs/sodium/sodium.js"
+                                      :provides ["sodium"]}]
                       :optimizations :none
                       :pretty-print true}}}}
                   

@@ -11,3 +11,5 @@
 (devtools/install!)
 
 (core/init!)
+
+(core/mount-components)
