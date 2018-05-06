@@ -6,7 +6,8 @@
             [clojure.java.io :as io]
             [evently.validation :as v]
             [ring.util.http-response :as response]
-            [ring.util.response :refer [response status]]))
+            [ring.util.response :refer [response status]]
+            [buddy.hashers :as hashers]))
 
 (defn home-page []
   (layout/render "home.html"))
@@ -15,7 +16,11 @@
   (if-let [errors (v/validate-event params)]
     (-> {:errors errors} response (status 400))
     (do
-      (response {:status :ok :response (db/get-event {:id (last (last (db/create-event! params)))})}))))
+      (response {:status :ok :response (db/get-event {:id (last (last (
+        db/create-event! (assoc
+                            params
+                            :access-key
+                            (hashers/derive (:access-key params))))))})}))))
 
 (defroutes home-routes
   (GET "/event/:id" [id] (response/ok (let [d (db/get-event {:id id})] (println d) d)))

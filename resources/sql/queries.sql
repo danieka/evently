@@ -1,8 +1,8 @@
 -- :name create-event! :insert :raw
 -- :doc creates a new events record
 INSERT INTO events
-(organizer, description)
-VALUES (:organizer, :description)
+(organizer, description, accessKey)
+VALUES (:organizer, :description, :access-key)
 
 -- :name update-event! :! :n
 -- :doc updates an existing events record

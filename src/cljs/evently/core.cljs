@@ -47,7 +47,7 @@
                "x-csrf-token" (.-value (.getElementById js/document "token"))}
                :params (into
                           (encrypt (:params req) secret-key)
-                          {:acceskey secret-key-base64})})))
+                          {:access-key secret-key-base64})})))
 
 (defn get-event [event id]
   (GET (str "/event/" id)
