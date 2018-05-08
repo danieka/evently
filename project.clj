@@ -44,7 +44,21 @@
   :main ^:skip-aot evently.core
 
   :plugins [[lein-cljsbuild "1.1.5"]
+            [lein-sassc "0.10.4"]
+            [lein-auto "0.1.3"]
+            [yogthos/lein-watch "0.0.4"]
             [lein-immutant "2.1.0"]]
+
+   :sassc
+   [{:src "resources/scss/main.scss"
+     :output-to "resources/public/css/main.css"
+     :style "nested"
+     :import-path "resources/scss"}] 
+
+   :auto {"sassc" {:file-pattern #"\.(scss|sass)$" :paths ["resources/scss"]}} 
+  
+  :hooks [leiningen.sassc]
+  
   :clean-targets ^{:protect false}
   [:target-path [:cljsbuild :builds :app :compiler :output-dir] [:cljsbuild :builds :app :compiler :output-to]]
   :figwheel

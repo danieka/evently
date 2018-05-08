@@ -22,8 +22,17 @@
                             :access-key
                             (hashers/derive (:access-key params))))))})}))))
 
+(defn get-event [id access-key]
+  (println (str (:access-key (db/get-event-access-key {:id id})) "   "  access-key))
+  (if (hashers/check access-key (:access-key (db/get-event-access-key {:id id})))
+    (response/ok
+      (let [d (db/get-event {:id id})]
+        (println d)
+        d))
+    (response/not-found)))
+
 (defroutes home-routes
-  (GET "/event/:id" [id] (response/ok (let [d (db/get-event {:id id})] (println d) d)))
+  (GET "/event/:id" [id access-key] (get-event id access-key))
   (POST "/event" req (save-event! req))
   (GET "*" [] (home-page)))
 

@@ -1,0 +1,122 @@
+$positive: #354359;
+$beige: #F2EAD9;
+$grey: #8491A6;
+$dark-beige: rgb(110, 102, 83);
+$orange: #B34834;
+$border-radius: 10px;
+$mobile-breakpoint: 600px;
+
+body {
+    font-family: 'Segoe UI', 'Lucida Grande','Ubuntu','sans-serif';
+    color: $dark-beige;
+    margin: 0;
+}
+
+#app {
+    padding: 2%;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+
+    display: grid;
+    grid-template-columns: 1fr minmax(min-content, 50em) 1fr;
+    grid-template-rows: 100%;
+}
+
+* {
+    margin: 0;
+}
+
+.event {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    grid-column: 2;
+    grid-row: 1;
+
+    p {
+        display: flex;
+        flex-wrap: wrap;
+
+        label {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 7px;
+
+            @media (min-width: $mobile-breakpoint) {
+                width: 4em;
+                padding-right: 2em;
+                padding-top: 0.3em;
+            }
+        }
+
+        span {
+            flex: 1 1 auto;
+            
+            @media (min-width: $mobile-breakpoint) {
+                width: 4em;
+                padding-top: 0.3em;
+            }
+        }
+    
+        input, textarea {
+            flex: 1 1 auto;
+            border: 1px solid $beige;
+            padding: 0.3em;
+            font-size: 1em;
+            color: $dark-beige;
+            font-family: 'Segoe UI', 'Lucida Grande','Ubuntu','sans-serif';
+
+            
+        }
+
+        input[type="date"] {
+            border-right: none;
+        }
+
+        input[type="time"] {
+            border-left: none;
+        }
+
+        textarea {
+            height: 10em;
+            resize: none;
+        }
+    }
+
+    div.error {
+        color: $orange;
+        width: 100%;
+        margin-top: 0.5em;
+
+        @media (min-width: $mobile-breakpoint) {
+            margin-left: 6em;
+        }
+        
+        &::first-letter {
+            text-transform: capitalize;
+        }
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    button.primary {
+        color: $beige;
+        background: $positive;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 80%;
+        padding: 1em;
+        border-radius: $border-radius;
+        border: none;
+        font-size: 1em;
+        text-transform: capitalize;
+        letter-spacing: 0.5px;
+        max-width: 37em;
+    }
+}

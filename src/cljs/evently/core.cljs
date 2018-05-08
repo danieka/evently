@@ -8,8 +8,10 @@
             [goog.history.EventType :as EventType])
   (:import goog.History))
 
-(def secret-key (.from_base64 js/sodium "QdH9i7Uk0027HA0QnpMgEAxCIMkrltuYk4FFnuaER1k"))
-(def secret-key-base64 (.to_base64 js/sodium secret-key))
+(declare nav!)
+
+; This master key is used when derivating access key from the secret key
+(def master-key (.from_base64 js/sodium "WOSKESds5RVJaJYV3_rA1CDkVunkDz9tdfCQPYUWO7M"))
 
 (defn encrypt-string
   [s secret-key]
@@ -38,8 +40,12 @@
   [params secret-key]
   (into {} (map (fn [[k v]] [k (decrypt-string v secret-key)]) params)))
 
+(defn access-key
+  [secret-key]
+  (.to_base64 js/sodium (.crypto_kdf_derive_from_key js/sodium (.-crypto_secretbox_KEYBYTES js/sodium) 195972984 secret-key master-key)))
+
 (defn post
-  [url req]
+  [url req secret-key]
   (POST url
     (into req {:format :json
                :headers
@@ -47,65 +53,93 @@
                "x-csrf-token" (.-value (.getElementById js/document "token"))}
                :params (into
                           (encrypt (:params req) secret-key)
-                          {:access-key secret-key-base64})})))
+                          {:access-key (access-key secret-key)})})))
 
-(defn get-event [event id]
-  (GET (str "/event/" id)
+(defn get-event [event id secret-key]
+  (.error js/console (access-key secret-key))
+  (GET (str "/event/" id "?access-key=" (access-key secret-key))
     {:headers {"Accept"  "application/transit+json"}
      :handler #(reset! event (decrypt % secret-key))}))
 
 (defn send-event! [fields errors]
-  (post "/event"
-    {:params @fields
-     :handler #(.log js/console (str "response:" %))
-     :error-handler #(do
-                      (.error js/console (str %))
-                      (reset! errors (get-in % [:response :errors])))}))
+  (let [secret-key (.crypto_secretbox_keygen js/sodium)]
+    (post "/event"
+      {:params @fields
+       :handler #(nav! (str "/event/" (get-in % [:response :id]) "?secret-key=" (.to_base64 js/sodium secret-key)))
+       :error-handler #(do
+                        (.error js/console (str %))
+                        (reset! errors (get-in % [:response :errors])))} secret-key)))
+
 
 (defn errors-component
   [errors key]
   (when-let [error (key @errors)]
-    [:div.alert.alert-danger (clojure.string/join error)]))
+    [:div.error (clojure.string/join error)]))
 
 (defn event-form []
   (let [fields (atom {})
         errors (atom nil)]
     (fn []
-      [:div.content
-        [:div.form-group
-          [:p "Organizer:"
-            [:input.form-control
-              {:type :text
-               :name :organizer
-               :on-change #(swap! fields assoc :organizer (-> % .-target .-value))
-               :value (:organizer @fields)}]]
-          [errors-component errors :organizer]
-          [:p "Description:"
-            [:textarea.form-control
-              {:rows 5
-               :cols 50
-               :name :description
-               :on-change #(swap! fields assoc :description (-> % .-target .-value))}]]
-          [errors-component errors :description]
-          [:input.btn.btn-primary {:type :submit 
-                                   :value "create event"
-                                   :on-click #(send-event! fields errors)}]]])))
+      [:form.event
+        [:h1 "Create Event"]
+        [:p
+          [:label "Who"]
+          [:input
+            {:type :text
+              :name :organizer
+              :on-change #(swap! fields assoc :organizer (-> % .-target .-value))
+              :value (:organizer @fields)}]
+          [errors-component errors :organizer]]
+        [:p
+          [:label "When"]
+          [:input
+            {:type :date
+              :name :start-date
+              :on-change #(swap! fields assoc :start-date (-> % .-target .-value))}]
+          [:input
+            {:type :time
+              :name :start-time
+              :on-change #(swap! fields assoc :start-time (-> % .-target .-value))}]
+          [errors-component errors :start-date]
+          [errors-component errors :start-time]]
+        [:p
+          [:label "Where"]
+          [:input
+            {:type :text
+              :name :location
+              :on-change #(swap! fields assoc :location (-> % .-target .-value))
+              :value (:location @fields)}]
+          [errors-component errors :location]]
+        [:p
+          [:label "What"]
+          [:textarea
+            {:name :description
+            :on-change #(swap! fields assoc :description (-> % .-target .-value))}]
+          [errors-component errors :description]]
+       [:button.primary {:on-click #(do (send-event! fields errors) false)} "create event" ]])))
 
-(defn display-event [id]
+(defn display-event [id queryparams]
   (let [event (atom nil)]
-    (get-event event id)
+    (.log js/console (str queryparams))
+    (get-event event id (.from_base64 js/sodium (:secret-key queryparams)))
     (fn []
-      [:div
-        [:p (str "Organizer: " (:organizer @event))]
-        [:p (str "Description: " (:description @event))]
-        [:input.btn.btn-primary {:value "get event"
-                                 :on-click #(get-event event id)}]])))                   
+      [:div.event
+        [:h1 "Party"]
+        [:p 
+          [:label "Who"]
+          [:span (:organizer @event)]]
+        [:p
+          [:label "When"]
+          [:span (:start-date @event) " " (:start-time @event)]]
+        [:p
+          [:label "Where"]
+          [:span (:location @event)]]
+        [:p 
+          [:label "What"]
+          [:span (:description @event)]]])))                   
 
 (defn home []
-  [:div.row
-    [:div.span12
-      [:h2 "Create Event"]
-      [event-form]]])
+  [event-form])
 
 (defn page [page-component]
   (r/render-component
@@ -117,10 +151,14 @@
   ())
 
 (defroute home-path "/" [] (page home))
-(defroute event-path "/event/:id" [id] (page (partial display-event id)))
+(defroute event-path "/event/:id" [id query-params] (page (partial display-event id query-params)))
 
 (defn init! [] ())
 
-(let [h (History.)]
+(defonce history 
+  (let [h (History.)]
     (goog.events/listen h EventType/NAVIGATE #(secretary/dispatch! (.-token %)))
-    (doto h (.setEnabled true)))
+    (doto h (.setEnabled true))))
+
+(defn nav! [token]
+  (.setToken history token))
