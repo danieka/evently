@@ -79,8 +79,9 @@
                     {:output-dir "target/cljsbuild/public/js"
                     :output-to "target/cljsbuild/public/js/app.js"
                     :source-map "target/cljsbuild/public/js/app.js.map"
-                    :optimizations :advanced
+                    :optimizations :whitespace
                     :pretty-print false
+                    :externs ["externs/libsodium.js"]
                     :closure-warnings
                     {:externs-validation :off :non-standard-jsdoc :off}}}}}
                 
