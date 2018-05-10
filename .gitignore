@@ -14,3 +14,5 @@ profiles.clj
 /log
 *.db
 .DS_Store
+figwheel_server.log
+resources/public/css
