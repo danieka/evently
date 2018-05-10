@@ -83,6 +83,14 @@
       [:form.event
         [:h1 "Create Event"]
         [:p
+          [:label "Title"]
+          [:input
+            {:type :text
+              :name :title
+              :on-change #(swap! fields assoc :title (-> % .-target .-value))
+              :value (:title @fields)}]
+          [errors-component errors :title]]
+        [:p
           [:label "Who"]
           [:input
             {:type :text
@@ -124,7 +132,9 @@
     (get-event event id (.from_base64 js/sodium (:secret-key queryparams)))
     (fn []
       [:div.event
-        [:h1 "Party"]
+        [:h1 (:title @event)]
+        [:p "You can share this link with friends to invite them."
+          [:a {:href (.-location js/window)} (str (.-location js/window)) ]]
         [:p 
           [:label "Who"]
           [:span (:organizer @event)]]

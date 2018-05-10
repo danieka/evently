@@ -1,8 +1,8 @@
 -- :name create-event! :insert :raw
 -- :doc creates a new events record
 INSERT INTO events
-(organizer, description, access_key, start_date, start_time, location)
-VALUES (:organizer, :description, :access-key, :start-date, :start-time, :location)
+(organizer, description, access_key, start_date, start_time, location, title)
+VALUES (:organizer, :description, :access-key, :start-date, :start-time, :location, :title)
 
 -- :name update-event! :! :n
 -- :doc updates an existing events record
@@ -15,7 +15,7 @@ WHERE id = :id
 SELECT id, organizer, description FROM events
 
 -- :name get-event :? :1
-SELECT id, organizer, description, start_date as "start-date", start_time as "start-time", end_date, end_time, location
+SELECT id, organizer, description, start_date as "start-date", start_time as "start-time", end_date, end_time, location, title
 FROM events
 WHERE id = :id
 
