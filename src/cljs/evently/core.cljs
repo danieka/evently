@@ -56,10 +56,10 @@
                           {:access-key (access-key secret-key)})})))
 
 (defn get-event [event id secret-key]
-  (.error js/console (access-key secret-key))
-  (GET (str "/event/" id "?access-key=" (access-key secret-key))
-    {:headers {"Accept"  "application/transit+json"}
-     :handler #(reset! event (decrypt % secret-key))}))
+  (.then (.-ready js/sodium))
+    (GET (str "/event/" id "?access-key=" (access-key secret-key))
+      {:headers {"Accept"  "application/transit+json"}
+      :handler #(reset! event (decrypt % secret-key))}))
 
 (defn send-event! [fields errors]
   (let [secret-key (.crypto_secretbox_keygen js/sodium)]
