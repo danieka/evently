@@ -34,5 +34,5 @@
 (defroutes home-routes
   (GET "/event/:id" [id access-key] (get-event id access-key))
   (POST "/event" req (save-event! req))
-  (GET "*" [] (home-page)))
+  (GET "/" [] (home-page)))
 
