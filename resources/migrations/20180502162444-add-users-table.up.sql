@@ -8,4 +8,11 @@ CREATE TABLE events
  end_date text,
  end_time text,
  location text,
- created time);
+ created time,
+ title text);
+
+CREATE TABLE PARTICIPATIONS
+(id BIGINT PRIMARY KEY AUTO_INCREMENT,
+ event INTEGER REFERENCES Events(id),
+ status TEXT,
+ name TEXT);

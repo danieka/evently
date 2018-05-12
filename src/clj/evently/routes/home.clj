@@ -31,8 +31,26 @@
         d))
     (response/not-found)))
 
+(defn save-participation! [id access-key {:keys [params]}]
+  (println (str (:access-key (db/get-event-access-key {:id id})) "   "  access-key))
+  (if (hashers/check access-key (:access-key (db/get-event-access-key {:id id})))
+    (do
+      (db/create-participation! (assoc params :event id))
+      (response/ok))
+    (response/not-found)))
+
+(defn get-participations-for-event [id access-key]
+  (if (hashers/check access-key (:access-key (db/get-event-access-key {:id id})))
+    (response/ok
+      (let [d (db/get-participations-for-event {:event id})]
+        (println d)
+        d))
+    (response/not-found)))
+
 (defroutes home-routes
   (GET "/event/:id" [id access-key] (get-event id access-key))
   (POST "/event" req (save-event! req))
+  (POST "/event/:id/participation" [id access-key :as req] (save-participation! id access-key req))
+  (GET "/event/:id/participation" [id access-key] (get-participations-for-event id access-key))
   (GET "/" [] (home-page)))
 

@@ -29,3 +29,13 @@ WHERE id = :id
 DELETE FROM events
 WHERE id = :id
 
+-- :name create-participation! :insert :raw
+-- :doc create a new participation for an event
+INSERT INTO participations(event, status, name)
+VALUES (:event, :status, :name)
+
+-- :name get-participations-for-event :? :*
+-- :doc get all participations for an event
+SELECT *
+FROM participations
+WHERE event = :event

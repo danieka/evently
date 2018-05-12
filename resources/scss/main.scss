@@ -14,7 +14,6 @@ body {
 
 #app {
     padding: 2%;
-    height: 100vh;
     width: 100vw;
     box-sizing: border-box;
 
@@ -36,9 +35,20 @@ body {
     grid-column: 2;
     grid-row: 1;
 
+
+    h1 {
+        text-align: center;
+    }
+
+    h1, h3, h4 {
+        margin-top: 1em;
+        margin-bottom: 1.6em;
+    }
+
     p {
         display: flex;
         flex-wrap: wrap;
+        margin: 1em 0;
 
         label {
             width: 100%;
@@ -68,8 +78,6 @@ body {
             font-size: 1em;
             color: $dark-beige;
             font-family: 'Segoe UI', 'Lucida Grande','Ubuntu','sans-serif';
-
-            
         }
 
         input[type="date"] {
@@ -100,23 +108,48 @@ body {
         }
     }
 
-    h1 {
-        text-align: center;
-    }
-
-    button.primary {
-        color: $beige;
-        background: $positive;
-        display: block;
+    div.buttons {
         margin-left: auto;
         margin-right: auto;
         width: 80%;
-        padding: 1em;
-        border-radius: $border-radius;
-        border: none;
-        font-size: 1em;
-        text-transform: capitalize;
-        letter-spacing: 0.5px;
         max-width: 37em;
+        display: flex;
+        justify-content: center;
+
+        button {
+            flex: 1 1 auto;
+            display: block;
+            margin: 0 1em;
+            padding: 1em;
+            border-radius: $border-radius;
+            border: none;
+            font-size: 1em;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+    
+            &.primary {
+                color: $beige;
+                background: $positive;
+            }
+
+            &.negative {
+                background: $beige;
+                color: $positive;
+            }
+        }
+    }
+
+    table {
+        text-align: left;
+        border-collapse: collapse;
+
+        tr {
+            height: 3em;
+            vertical-align: middle;
+        }
+
+        td {
+            padding-right: 5em;
+        }
     }
 }

@@ -36,9 +36,15 @@
   [params secret-key]
   (into {} (map (fn [[k v]] [k (encrypt-string v secret-key)]) params)))
 
-(defn decrypt
+(defn decrypt-map
   [params secret-key]
   (into {} (map (fn [[k v]] [k (decrypt-string v secret-key)]) params)))
+
+(defn decrypt
+  [params secret-key]
+  (if (map? params)
+    (decrypt-map params secret-key)
+    (map #(decrypt % secret-key) params)))
 
 (defn access-key
   [secret-key]
@@ -61,6 +67,12 @@
       {:headers {"Accept"  "application/transit+json"}
       :handler #(reset! event (decrypt % secret-key))}))
 
+(defn get-participations-for-event [participations id secret-key]
+  (.then (.-ready js/sodium))
+    (GET (str "/event/" id "/participation?access-key=" (access-key secret-key))
+      {:headers {"Accept"  "application/transit+json"}
+      :handler #(reset! participations (decrypt % secret-key))}))
+
 (defn send-event! [fields errors]
   (let [secret-key (.crypto_secretbox_keygen js/sodium)]
     (post "/event"
@@ -70,6 +82,13 @@
                         (.error js/console (str %))
                         (reset! errors (get-in % [:response :errors])))} secret-key)))
 
+(defn send-participation! [participations id secret-key fields errors]
+    (post (str "/event/" id "/participation")
+      {:params @fields
+       :handler #(swap! participations conj @fields)
+       :error-handler #(do
+                        (.error js/console (str %))
+                        (reset! errors (get-in % [:response :errors])))} secret-key))
 
 (defn errors-component
   [errors key]
@@ -124,12 +143,50 @@
             {:name :description
             :on-change #(swap! fields assoc :description (-> % .-target .-value))}]
           [errors-component errors :description]]
-       [:button.primary {:on-click #(do (send-event! fields errors) false)} "create event" ]])))
+        [:div.buttons
+          [:button.primary {:on-click #(do (send-event! fields errors) false)} "create event"]]])))
 
-(defn display-event [id queryparams]
-  (let [event (atom nil)]
-    (.log js/console (str queryparams))
-    (get-event event id (.from_base64 js/sodium (:secret-key queryparams)))
+(defn participation-form [participations id secret-key]
+  (let [fields (atom {})
+        errors (atom nil)]
+    (fn []
+      [:form.participation
+        [:h3 "Will you be attending?"]
+        [:p
+          [:label "Name"]
+          [:input
+            {:type :text
+              :name :name
+              :on-change #(swap! fields assoc :name (-> % .-target .-value))
+              :value (:name @fields)}]
+          [errors-component errors :name] 
+        [:div.buttons
+          [:button.primary {:on-click #(do (swap! fields assoc :status "attending") (send-participation! participations id secret-key fields errors) false)} "Attending"]
+          [:button {:on-click #(do (swap! fields assoc :status "not_attending") (send-participation! participations id secret-key fields errors) false)} "Not Attending"]]]])))
+
+(defn participation-row [p]
+  [:tr
+    [:td (:name p)]
+    [:td (if (= "attending" (:status p)) "Yes" "No")]])
+
+(defn participation-list [participations id secret-key]
+    (get-participations-for-event participations id secret-key)
+    (fn []
+      [:div
+        [:h3 "Attendee list"]
+        [:table
+          [:thead 
+            [:tr
+              [:th "Name"]
+              [:th "Attending"]]]
+          [:tbody
+            (for [p @participations]
+              [participation-row p])]]]))
+
+(defn display-event [id query-params]
+  (let [event (atom nil)
+        participations (atom nil)]
+    (get-event event id (.from_base64 js/sodium (:secret-key query-params)))
     (fn []
       [:div.event
         [:h1 (:title @event)]
@@ -146,7 +203,9 @@
           [:span (:location @event)]]
         [:p 
           [:label "What"]
-          [:span (:description @event)]]])))                   
+          [:span (:description @event)]]
+      [(participation-form participations id (.from_base64 js/sodium (:secret-key query-params)))]
+      [(participation-list participations id (.from_base64 js/sodium (:secret-key query-params)))]])))
 
 (defn home []
   [event-form])
