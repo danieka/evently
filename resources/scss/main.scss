@@ -139,6 +139,11 @@ body {
         }
     }
 
+    div.space {
+        display: flex;
+        justify-content: space-around;
+    }
+
     table {
         text-align: left;
         border-collapse: collapse;

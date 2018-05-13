@@ -162,26 +162,33 @@
           [errors-component errors :name] 
         [:div.buttons
           [:button.primary {:on-click #(do (swap! fields assoc :status "attending") (send-participation! participations id secret-key fields errors) false)} "Attending"]
-          [:button {:on-click #(do (swap! fields assoc :status "not_attending") (send-participation! participations id secret-key fields errors) false)} "Not Attending"]]]])))
+          [:button {:on-click #(do (swap! fields assoc :status "not-attending") (send-participation! participations id secret-key fields errors) false)} "Not Attending"]]]])))
 
 (defn participation-row [p]
   [:tr
     [:td (:name p)]
     [:td (if (= "attending" (:status p)) "Yes" "No")]])
 
+(defn filter-participations [participations status]
+  (filter #(= (:status %) status) participations))
+
 (defn participation-list [participations id secret-key]
+  (let [filter-status (atom "attending")]
     (get-participations-for-event participations id secret-key)
     (fn []
       [:div
         [:h3 "Attendee list"]
+        [:div.space 
+          [:span {:on-click #(reset! filter-status "attending")} (str "Attending (" (count (filter-participations @participations "attending"))  ")")]
+          [:span {:on-click #(reset! filter-status "not-attending")} (str "Not Attending (" (count (filter-participations @participations "not-attending")) ")")]]
         [:table
           [:thead 
             [:tr
               [:th "Name"]
               [:th "Attending"]]]
           [:tbody
-            (for [p @participations]
-              [participation-row p])]]]))
+            (for [p (filter-participations @participations @filter-status)]
+              [participation-row p])]]])))
 
 (defn display-event [id query-params]
   (let [event (atom nil)
