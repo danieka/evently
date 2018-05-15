@@ -179,8 +179,12 @@
       [:div
         [:h3 "Attendee list"]
         [:div.space 
-          [:span {:on-click #(reset! filter-status "attending")} (str "Attending (" (count (filter-participations @participations "attending"))  ")")]
-          [:span {:on-click #(reset! filter-status "not-attending")} (str "Not Attending (" (count (filter-participations @participations "not-attending")) ")")]]
+          [:span {
+            :class (if (= @filter-status "attending") "selected" "")
+            :on-click #(reset! filter-status "attending")} (str "Attending (" (count (filter-participations @participations "attending"))  ")")]
+          [:span {
+            :class (if (= @filter-status "not-attending") "selected" "")
+            :on-click #(reset! filter-status "not-attending")} (str "Not Attending (" (count (filter-participations @participations "not-attending")) ")")]]
         [:table
           [:thead 
             [:tr

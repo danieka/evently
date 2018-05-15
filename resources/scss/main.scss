@@ -147,6 +147,7 @@ body {
     table {
         text-align: left;
         border-collapse: collapse;
+        margin-top: 1em;
 
         tr {
             height: 3em;
@@ -157,4 +158,20 @@ body {
             padding-right: 5em;
         }
     }
+}
+
+.participation {
+    margin-top: 6em;
+    margin-bottom: 2em;
+}
+
+.space {
+    span {
+        cursor: pointer;
+    }
+    
+    span.selected {
+        font-weight: bold;
+    }
+
 }
