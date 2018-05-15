@@ -11,7 +11,7 @@
 (declare nav!)
 
 ; This master key is used when derivating access key from the secret key
-(def master-key (.from_base64 js/sodium "WOSKESds5RVJaJYV3_rA1CDkVunkDz9tdfCQPYUWO7M"))
+(defn master-key []  (.from_base64 js/sodium "WOSKESds5RVJaJYV3_rA1CDkVunkDz9tdfCQPYUWO7M"))
 
 (defn encrypt-string
   [s secret-key]
@@ -48,7 +48,7 @@
 
 (defn access-key
   [secret-key]
-  (.to_base64 js/sodium (.crypto_kdf_derive_from_key js/sodium (.-crypto_secretbox_KEYBYTES js/sodium) 195972984 secret-key master-key)))
+  (.to_base64 js/sodium (.crypto_kdf_derive_from_key js/sodium (.-crypto_secretbox_KEYBYTES js/sodium) 195972984 secret-key (master-key))))
 
 (defn post
   [url req secret-key]
