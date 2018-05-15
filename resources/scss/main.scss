@@ -64,6 +64,7 @@ body {
 
         span {
             flex: 1 1 auto;
+            white-space: pre-line;
             
             @media (min-width: $mobile-breakpoint) {
                 width: 4em;
